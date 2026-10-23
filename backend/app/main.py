@@ -50,6 +50,10 @@ class TicketInput(BaseModel):
     description: str = Field(min_length=10, max_length=5000)
 
 
+class SavedTicketInput(TicketInput):
+    synthetic_data_confirmed: Literal[True]
+
+
 class PredictionOutput(BaseModel):
     category: str
     category_score: float
@@ -131,9 +135,9 @@ def predict(request: Request, ticket: TicketInput):
 
 @app.post('/tickets', status_code=201)
 @limiter.limit('20/minute')
-def create_ticket(request: Request, ticket: TicketInput, user: User = Depends(current_user), db: Session = Depends(get_db)):
+def create_ticket(request: Request, ticket: SavedTicketInput, user: User = Depends(current_user), db: Session = Depends(get_db)):
     prediction = classify(ticket, request)
-    record = Ticket(owner_id=user.id, **ticket.model_dump(), predicted_category=prediction.category,
+    record = Ticket(owner_id=user.id, **ticket.model_dump(exclude={'synthetic_data_confirmed'}), predicted_category=prediction.category,
         predicted_priority=prediction.priority, category_score=prediction.category_score,
         priority_score=prediction.priority_score, needs_review=prediction.needs_review)
     db.add(record)

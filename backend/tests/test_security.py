@@ -35,7 +35,7 @@ def auth(client, name='alice'):
     return {'Authorization': 'Bearer ' + response.json()['access_token']}
 
 
-PAYLOAD = {'subject': 'Payment error', 'description': 'My credit card was charged twice for the same purchase.'}
+PAYLOAD = {'subject': 'Payment error', 'description': 'My credit card was charged twice for the same purchase.', 'synthetic_data_confirmed': True}
 
 
 def test_authentication_and_revocation(client):
@@ -94,5 +94,5 @@ def test_rate_limit(client):
         assert client.post('/auth/login', json={'username': 'alice', 'password': 'wrong'}).status_code == 401
     assert client.post('/auth/login', json={'username': 'alice', 'password': 'wrong'}).status_code == 429
     for _ in range(10):
-        assert client.post('/predict', json=PAYLOAD).status_code == 200
-    assert client.post('/predict', json=PAYLOAD).status_code == 429
+        assert client.post('/predict', json={k: v for k, v in PAYLOAD.items() if k != 'synthetic_data_confirmed'}).status_code == 200
+    assert client.post('/predict', json={k: v for k, v in PAYLOAD.items() if k != 'synthetic_data_confirmed'}).status_code == 429
