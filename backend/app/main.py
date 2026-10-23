@@ -12,10 +12,14 @@ from pydantic import BaseModel, ConfigDict, Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
+from slowapi.middleware import SlowAPIMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from app.db import LoginSession, Ticket, User, get_db
 from app.security import DUMMY_HASH, current_user, digest, passwords
+
+if os.getenv('ENVIRONMENT') == 'production' and not os.getenv('DATABASE_URL', '').startswith(('postgresql://', 'postgresql+psycopg://')):
+    raise RuntimeError('Production requires a PostgreSQL DATABASE_URL')
 
 MODELS_DIR = Path(__file__).resolve().parents[1] / 'models'
 limiter = Limiter(key_func=get_remote_address, default_limits=['120/minute'])
@@ -30,6 +34,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title='Smart Ticket AI API', version='2.0.0', lifespan=lifespan)
 app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(CORSMiddleware,
     allow_origins=[x.strip() for x in os.getenv('ALLOWED_ORIGINS', 'http://localhost:3000').split(',') if x.strip()],

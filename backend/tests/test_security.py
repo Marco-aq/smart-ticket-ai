@@ -84,6 +84,7 @@ def test_expired_session_and_validation(client):
     assert client.get('/tickets', headers=headers).status_code == 401
     headers = auth(client)
     assert client.get('/tickets?page=0', headers=headers).status_code == 422
+    assert client.post('/tickets', headers=headers, json={k: v for k, v in PAYLOAD.items() if k != 'synthetic_data_confirmed'}).status_code == 422
     assert client.post('/tickets', headers=headers, json={'subject': '   ', 'description': ' ' * 20}).status_code == 422
     ticket = client.post('/tickets', headers=headers, json=PAYLOAD).json()
     assert client.patch('/tickets/' + ticket['id'], headers=headers, json={'status': 'fake'}).status_code == 422
