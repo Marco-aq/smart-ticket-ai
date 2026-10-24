@@ -1,0 +1,54 @@
+import { Shell } from "@/components/shell";
+export default function Privacy() {
+  return (
+    <Shell protect={false}>
+      <article className="policy panel">
+        <p className="eyebrow">DEMO DATA POLICY</p>
+        <h1>Fictional tickets. Clear boundaries.</h1>
+        <p>
+          This portfolio prototype is intended for synthetic support requests in
+          English. Do not submit names, emails, phone numbers, payment details,
+          passwords, or confidential information.
+        </p>
+        <h2>What is stored</h2>
+        <p>
+          The public classifier processes your text without saving it to the
+          application database. Signed-in ticket creation stores the subject,
+          description, model suggestions, scores, status, creation time, and
+          account ownership in PostgreSQL. Usernames and Argon2 password hashes
+          are stored to authenticate accounts.
+        </p>
+        <h2>Sessions and access</h2>
+        <p>
+          An essential HttpOnly session cookie keeps you signed in for up to
+          eight hours. The database stores only a hash of the session token.
+          Signing out revokes that session. Each account can access its own
+          tickets and aggregate statistics.
+        </p>
+        <h2>Deletion and retention</h2>
+        <p>
+          You can delete individual tickets from their detail page. The demo
+          owner can delete an account and all associated tickets through the
+          administration command. A maintenance command deletes tickets older
+          than 30 days; the owner must schedule or run it. Hosting providers may
+          retain operational logs or backups according to their policies.
+        </p>
+        <h2>Service providers</h2>
+        <p>
+          The deployment is prepared for Vercel, Render, and Neon. Requests pass
+          through the frontend server and API; infrastructure providers process
+          connection metadata. The application does not add analytics trackers
+          or log ticket bodies.
+        </p>
+        <h2>Limits of this prototype</h2>
+        <p>
+          Predictions use models trained on a synthetic dataset. Scores are not
+          calibrated probabilities, and low scores trigger a suggestion for
+          human review. Do not use this demo for real personal data or critical
+          incident triage. A real deployment requires an owner-specific privacy
+          notice, retention schedule, and appropriate operational controls.
+        </p>
+      </article>
+    </Shell>
+  );
+}
