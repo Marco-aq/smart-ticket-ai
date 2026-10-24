@@ -44,3 +44,13 @@ next-env.d.ts
 !.env.example
 /playwright-report/
 /test-results/
+
+# Local credentials and private material, including nested paths
+**/.env*
+!**/.env.example
+**/.envrc
+*.key
+*.p12
+*.pfx
+secrets/
+credentials.json
