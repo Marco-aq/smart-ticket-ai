@@ -1,0 +1,11 @@
+# Packages required for API inference, persistence and account administration.
+# Keep scikit-learn aligned with the trusted serialized model artifacts.
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+scikit-learn==1.9.1
+joblib==1.5.3
+sqlalchemy==2.1.6
+psycopg[binary]==3.3.6
+python-dotenv==1.2.4
+pwdlib[argon2]==0.3.1
+slowapi==0.1.10

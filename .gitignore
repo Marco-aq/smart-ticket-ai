@@ -1,32 +1,49 @@
-# Credentials: keep only explicit templates
+# Secrets: only the explicit, placeholder-only .env.example templates are public.
 .env
 .env.*
-!.env.example
-**/.env
-**/.env.*
+.envrc
 !**/.env.example
+secrets/
+credentials.json
 *.pem
 *.key
-# Python
-**/.venv/
-**/__pycache__/
+*.p12
+*.pfx
+
+# Python environments, caches, coverage and local data.
+.venv/
+venv/
+__pycache__/
 *.py[cod]
-**/.pytest_cache/
-**/.coverage
-**/htmlcov/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
 *.db
 *.db-*
 *.sqlite*
-# Next / tooling
-**/node_modules/
-**/.next/
-**/out/
-**/.vercel/
+backups/
+*.sql.gz
+dump*.sql
+backup*.sql
+*.dump
+*.backup
+*.bak
+
+# JavaScript / deployment tooling and test output.
+node_modules/
+.next/
+out/
+.vercel/
+coverage/
 *.tsbuildinfo
-**/next-env.d.ts
+next-env.d.ts
+playwright-report/
+test-results/
 *.log
 .codex/
 .DS_Store
 Thumbs.db
-**/playwright-report/
-**/test-results/
+
+# Keep source code, package lockfiles and trusted models under version control.
+# Do not ignore *.joblib: the two trained models are required for deployment.

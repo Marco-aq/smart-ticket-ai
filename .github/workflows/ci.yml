@@ -28,12 +28,15 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
-          cache-dependency-path: backend/requirements.txt
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-runtime.txt
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+      - run: python scripts/check_release_files.py
       - run: python -m pip install -r backend/requirements.txt
       - run: python -m pytest -q
         working-directory: backend
@@ -47,4 +50,23 @@ jobs:
         working-directory: frontend
       - run: npm run test:e2e
         working-directory: frontend
+      - name: Add synthetic exclusion canaries
+        run: |
+          printf 'PACKAGING_CANARY=synthetic\n' > backend/.env.packaging-test
+          printf 'PACKAGING_CANARY=synthetic\n' > backend/app/.env.packaging-test
+          printf '{"packaging_canary":"synthetic"}\n' > backend/app/credentials.json
       - run: docker build -t smart-ticket-api ./backend
+      - name: Start packaged API
+        run: >-
+          docker run -d --name smart-ticket-smoke --network host
+          -e PORT=8200 -e ENVIRONMENT=production
+          -e DATABASE_URL=postgresql+psycopg://test:test@localhost:5432/smart_ticket_test
+          smart-ticket-api
+      - name: Smoke test packaged API
+        run: python scripts/smoke_api.py
+      - name: Verify Docker exclusions and runtime dependencies
+        run: |
+          docker exec smart-ticket-smoke python -c "import importlib.util; from pathlib import Path; assert not Path('/app/.env').exists(); assert not Path('/app/app/.env.packaging-test').exists(); assert not Path('/app/app/credentials.json').exists(); import os; assert os.getuid() != 0; assert not Path('/app/tests').exists(); assert not Path('/app/ml').exists(); assert importlib.util.find_spec('pytest') is None; assert importlib.util.find_spec('huggingface_hub') is None; assert Path('/app/models/category_model.joblib').is_file(); assert Path('/app/models/priority_model.joblib').is_file()"
+      - name: Stop packaged API
+        if: always()
+        run: docker rm -f smart-ticket-smoke || true
